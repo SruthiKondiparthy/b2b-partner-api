@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Partner API Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input, textarea, button { 
+      padding: 8px; 
+      margin: 5px 0; 
+      width: 350px; 
+      font-size: 14px;
+    }
+    textarea { width: 350px; }
+    button { width: 180px; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 15px; border-radius: 5px; }
+  </style>
+</head>
+
+<body>
+  <h2>Partner API Demo (via APIM)</h2>
+
+  <label><b>Order ID</b></label><br />
+  <input id="orderId" placeholder="e.g. 1" />
+
+  <br /><br />
+
+  <label><b>Order Payload (JSON)</b></label><br />
+  <textarea id="orderBody" rows="5">
+{ "item": "Laptop", "quantity": 1 }
+  </textarea>
+
+  <br /><br />
+
+  <button onclick="getOrder()">GET Order</button>
+  <button onclick="createOrder()">POST Order</button>
+  <button onclick="updateOrder()">PUT Order</button>
+
+  <h3>Response</h3>
+  <pre id="output"></pre>
+
+  <script>
+    // Replace with your APIM gateway URL
+    const baseUrl = "https://apim-partner-api.azure-api.net";
+
+    // Replace with your APIM subscription key
+    const subscriptionKey = "8bfcda40d50e4f9c9cd9a1bc02d63921";
+
+    async function getOrder() {
+      const id = document.getElementById("orderId").value;
+      callApi(`${baseUrl}/orders/${id}`, "GET");
+    }
+
+    async function createOrder() {
+      const body = document.getElementById("orderBody").value;
+      callApi(`${baseUrl}/orders`, "POST", body);
+    }
+
+    async function updateOrder() {
+      const id = document.getElementById("orderId").value;
+      const body = document.getElementById("orderBody").value;
+      callApi(`${baseUrl}/orders/${id}`, "PUT", body);
+    }
+
+    async function callApi(url, method, body = null) {
+      try {
+        const headers = {
+          "Ocp-Apim-Subscription-Key": subscriptionKey
+        };
+
+        // Add JSON header only for POST/PUT
+        if (method === "POST" || method === "PUT") {
+          headers["Content-Type"] = "application/json";
+        }
+
+        const response = await fetch(url, {
+          method: method,
+          headers: headers,
+          body: body
+        });
+
+        const text = await response.text();
+        document.getElementById("output").textContent = text;
+      } catch (err) {
+        document.getElementById("output").textContent = err;
+      }
+    }
+  </script>
+</body>
+</html>
